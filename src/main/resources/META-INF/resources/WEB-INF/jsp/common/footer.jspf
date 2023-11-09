@@ -1,0 +1,16 @@
+<script src="webjars/bootstrap/5.3.2/js/bootstrap.min.js"></script>
+<!-- <script>
+		console.log("${todo.targetDate}");
+		const dateObj = new Date();
+		const year = dateObj.getFullYear();
+		let month = dateObj.getMonth();
+		month = month + 1;
+		const date = dateObj.getDate();
+		const todayDate = year + "-" + month + "-" + date;
+		const dueDate = document.getElementById("due-date-field");
+		console.log(${targetDate});
+		dueDate.min = todayDate;
+	</script> -->
+</body>
+
+</html>
