@@ -3,6 +3,8 @@ package com.edgegroup.springboot.todoapplication.todo;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -26,14 +28,15 @@ public class TodoController {
 
 	@RequestMapping("todo-list")
 	public String todoList(ModelMap model) {
-		List<Todo> listByUser = todoService.getListByUser();
+		String username = getLoggedInUsername(model);
+		List<Todo> listByUser = todoService.getListByUser(username);
 		model.put("list", listByUser);
 		return "listView";
 	}
 	
 	@RequestMapping(value="add-todo", method=RequestMethod.GET)
 	public String addTodo(ModelMap model) {
-		String username = (String)model.get("name");
+		String username = getLoggedInUsername(model);
 		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
 		model.put("todo", todo);
 		return "addTodoView";
@@ -44,7 +47,7 @@ public class TodoController {
 		if(result.hasErrors()) {
 			return "addTodoView";
 		}
-		String username = (String)model.get("name");
+		String username = getLoggedInUsername(model);
 		todoService.addTodo(username, todo.getDescription(), todo.getTargetDate());
 		return "redirect:todo-list";
 	}
@@ -57,7 +60,7 @@ public class TodoController {
 	
 	@RequestMapping(value="edit-todo", method=RequestMethod.GET)
 	public String editTodo(ModelMap model, @RequestParam int id) {
-		String username = (String)model.get("name");
+		String username = getLoggedInUsername(model);
 		Todo todo = todoService.findById(id);
 		model.put("todo", todo);
 		return "editTodoView";
@@ -68,8 +71,14 @@ public class TodoController {
 		if(result.hasErrors()) {
 			return "editTodoView";
 		}
-		String username = (String)model.get("name");
+		String username = getLoggedInUsername(model);
 		todoService.editTodo(todo);
 		return "redirect:todo-list";
 	}
+
+	private String getLoggedInUsername(ModelMap model) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return authentication.getName();
+	}
+
 }

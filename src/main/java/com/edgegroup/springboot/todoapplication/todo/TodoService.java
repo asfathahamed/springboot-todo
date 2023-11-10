@@ -18,8 +18,9 @@ public class TodoService {
 		listOfTodos.add(new Todo(++id, "asfath", "Learn ML", LocalDate.now().plusYears(1), false));
 	}
 	
-	public List<Todo> getListByUser() {
-		return listOfTodos;
+	public List<Todo> getListByUser(String username) {
+		Predicate<? super Todo> predicate = todo -> todo.getUsername().equalsIgnoreCase(username);
+		return listOfTodos.stream().filter(predicate).toList();
 	}
 
 	public void addTodo(String username, String description, LocalDate dueDate) {
