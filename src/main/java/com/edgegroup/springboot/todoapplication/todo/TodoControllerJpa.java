@@ -17,19 +17,19 @@ import jakarta.validation.Valid;
 
 @Controller
 @SessionAttributes("name")
-public class TodoController {
-	
-	private TodoService todoService;
+public class TodoControllerJpa {
 
-	public TodoController(TodoService todoService) {
+	private TodoRepository todoRepository;
+
+	public TodoControllerJpa(TodoRepository todoRepository) {
 		super();
-		this.todoService = todoService;
+		this.todoRepository = todoRepository;
 	}
 
 	@RequestMapping("todo-list")
 	public String todoList(ModelMap model) {
 		String username = getLoggedInUsername(model);
-		List<Todo> listByUser = todoService.getListByUser(username);
+		List<Todo> listByUser = todoRepository.findByUsername(username);
 		model.put("list", listByUser);
 		return "listView";
 	}
@@ -48,20 +48,20 @@ public class TodoController {
 			return "addTodoView";
 		}
 		String username = getLoggedInUsername(model);
-		todoService.addTodo(username, todo.getDescription(), todo.getTargetDate());
+		todo.setUsername(username);
+		todoRepository.save(todo);
 		return "redirect:todo-list";
 	}
 
 	@RequestMapping("delete-todo")
 	public String deleteTodo(@RequestParam int id) {
-		todoService.deleteTodo(id);
+		todoRepository.deleteById(id);
 		return "redirect:todo-list";
 	}
 	
 	@RequestMapping(value="edit-todo", method=RequestMethod.GET)
 	public String editTodo(ModelMap model, @RequestParam int id) {
-		String username = getLoggedInUsername(model);
-		Todo todo = todoService.findById(id);
+		Todo todo = todoRepository.findById(id).get();
 		model.put("todo", todo);
 		return "editTodoView";
 	}
@@ -71,8 +71,7 @@ public class TodoController {
 		if(result.hasErrors()) {
 			return "editTodoView";
 		}
-		String username = getLoggedInUsername(model);
-		todoService.editTodo(todo);
+		todoRepository.save(todo);
 		return "redirect:todo-list";
 	}
 
